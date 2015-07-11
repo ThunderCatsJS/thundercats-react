@@ -1,5 +1,5 @@
-[![Coverage Status](https://coveralls.io/repos/berkeleytrye/thundercats-react/badge.svg)](https://coveralls.io/r/berkeleytrue/thundercats-react)
-[![Stories in Ready](https://badge.waffle.io/berkeleytrue/thundercats-react.png?label=ready&title=Ready)](https://waffle.io/berkeleytrue/thundercats-react)
+[![Coverage Status](https://coveralls.io/repos/thundercatsjs/thundercats-react/badge.svg)](https://coveralls.io/r/berkeleytrue/thundercats-react)
+[![Stories in Ready](https://badge.waffle.io/thundercatsjs/thundercats-react.png?label=ready&title=Ready)](https://waffle.io/berkeleytrue/thundercats-react)
 [![Join the chat at https://gitter.im/r3dm/thundercats](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/r3dm/thundercats?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![JS.ORG](https://img.shields.io/badge/js.org-thundercats-ffb400.svg?style=flat-square)](http://js.org)
 
