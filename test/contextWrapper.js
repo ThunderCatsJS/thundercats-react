@@ -26,7 +26,7 @@ describe('ContextWrapper', function() {
     });
 
     it('should return a valid react element', function() {
-      let catApp = new Cat();
+      let catApp = createCat();
       let Burrito = ContextWrapper.wrap(React.createElement('div'), catApp);
       React.isValidElement(Burrito).should.be.true;
     });
@@ -35,7 +35,7 @@ describe('ContextWrapper', function() {
   describe('component', function() {
     let catApp, Burrito, spy;
     beforeEach(function() {
-      catApp = new Cat();
+      catApp = createCat();
     });
 
     afterEach(() => {
@@ -156,3 +156,7 @@ describe('ContextWrapper', function() {
     });
   });
 });
+
+function createCat() {
+  return Cat()();
+}

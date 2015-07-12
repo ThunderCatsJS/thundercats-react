@@ -30,7 +30,7 @@ describe('Container', function() {
     it('should be ok with empty options', () => {
       expect(() => {
         let CatActions = createActions();
-        let cat = new Cat();
+        let cat = createCat();
         cat.register(CatActions);
         let Comp = createContainer({}, createClass());
         let Burrito = ContextWrapper.wrap(
@@ -71,7 +71,7 @@ describe('Container', function() {
     beforeEach(() => {
       let CatActions = createActions();
       let LionActions = createActions(null, 'LionActions');
-      cat = new Cat();
+      cat = createCat();
       cat.register(CatActions);
       cat.register(LionActions);
     });
@@ -124,10 +124,10 @@ describe('Container', function() {
       let CatActions = createActions();
       let CatStore = createStore(initValue);
       let LionStore = createStore({}, 'LionStore');
-      cat = new Cat();
+      cat = createCat();
       cat.register(CatActions);
-      cat.register(LionStore, cat);
-      cat.register(CatStore, cat);
+      cat.register(LionStore, null, cat);
+      cat.register(CatStore, null, cat);
     });
 
     it('should assign initial store value to comp props', () => {
@@ -312,9 +312,9 @@ describe('Container', function() {
       thundercatSpy = sinon.spy(function() {
         return {};
       });
-      cat = new Cat();
+      cat = createCat();
       cat.register(createActions());
-      cat.register(createStore(), cat);
+      cat.register(createStore(), null, cat);
     });
 
     after(() => {
@@ -391,9 +391,9 @@ describe('Container', function() {
         fetchAction: 'catActions.doAction',
         getPayload: () => ({})
       };
-      cat = new Cat();
+      cat = createCat();
       cat.register(createActions());
-      cat.register(createStore(), cat);
+      cat.register(createStore(), null, cat);
     });
 
     after(() => {
@@ -478,9 +478,9 @@ describe('Container', function() {
       fetchAction = 'catActions.doAction';
       fetchPayload = { only: 'A tribute' };
 
-      cat = new Cat();
+      cat = createCat();
       cat.register(CatActions);
-      cat.register(CatStore, cat);
+      cat.register(CatStore, null, cat);
       cat.fetchMap = new Map();
     });
 
@@ -531,14 +531,16 @@ describe('Container', function() {
 });
 
 function createStore(initValue = {}, name = 'CatStore') {
-  class CatStore extends Store {
-    constructor(cat) {
-      super();
-      this.value = initValue;
+  return Store(initValue)
+    .refs({ displayName: name })
+    .init(({ instance, args }) => {
+      const [ cat ] = args;
+      instance.value = initValue;
       let catActions = cat.getActions('CatActions');
-      this.register(Store.setter(catActions.doAction));
-    }
-    static displayName = name
-  }
-  return CatStore;
+      instance.register(Store.setter(catActions.doAction));
+    });
+}
+
+function createCat() {
+  return Cat()();
 }

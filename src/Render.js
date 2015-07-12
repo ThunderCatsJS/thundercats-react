@@ -9,7 +9,7 @@ import { getName, getNameOrNull } from './utils';
 
 const debug = debugFactory('thundercats:render');
 
-export function fetch(fetchMap, stores) {
+export function fetch(fetchMap) {
   if (!fetchMap || fetchMap.size === 0) {
     debug('cat found empty fetch map');
     return Rx.Observable.return({
@@ -84,7 +84,6 @@ export function Render(cat, Component, DOMContainer) {
 }
 
 export function RenderToString(cat, Component) {
-  const { stores } = cat;
   const fetchMap = new Map();
   cat.fetchMap = fetchMap;
   return Rx.Observable.just(Component)
@@ -96,7 +95,7 @@ export function RenderToString(cat, Component) {
     })
     .flatMap(
       () => {
-        return fetch(fetchMap, stores);
+        return fetch(fetchMap);
       },
       (Burrito, { data, fetchMap }) => {
         return {

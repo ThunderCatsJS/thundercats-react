@@ -13,7 +13,7 @@ describe('RenderToString', function() {
   let cat;
   this.timeout(6000);
   beforeEach(() => {
-    cat = new Cat();
+    cat = Cat()();
   });
 
   it('should return an observable', () => {
@@ -31,7 +31,7 @@ describe('RenderToString', function() {
       payload = { name: 'foo' };
       wrappedPayload = { value: payload };
       cat.register(CatActions);
-      cat.register(CatStore, cat);
+      cat.register(CatStore, null, cat);
     });
 
     it('should initiate fetcher registration', (done) => {
@@ -100,7 +100,7 @@ describe('RenderToString', function() {
       );
       element = React.createElement(Comp);
       cat.register(CatActions);
-      cat.register(CatStore, cat);
+      cat.register(CatStore, null, cat);
     });
 
     it('should return markup, data', (done) => {
@@ -137,7 +137,7 @@ describe('RenderToString', function() {
   });
 });
 
-describe('render', function () {
+describe('render', function() {
   let cat, Comp, element;
   beforeEach(() => {
     let CatActions = createActions();
@@ -151,9 +151,9 @@ describe('render', function () {
       createClass()
     );
     element = React.createElement(Comp);
-    cat = new Cat();
+    cat = Cat()();
     cat.register(CatActions);
-    cat.register(CatStore, cat);
+    cat.register(CatStore, null, cat);
   });
 
   it('should return an observable', () => {
@@ -199,16 +199,13 @@ describe('render', function () {
 });
 
 function createStore(initValue = null) {
-  class CatStore extends Store {
-    constructor(cat) {
-      super();
-      this.value = initValue;
+  return Store(initValue)
+    .refs({ displayName: 'CatStore' })
+    .init(({ instance, args }) => {
+      const [ cat ] = args;
       let catActions = cat.getActions('CatActions');
-      this.register(
+      instance.register(
         catActions.doAction.delay(500).map(() => ({ replace: {}}))
       );
-    }
-  }
-  CatStore.displayName = 'CatStore';
-  return CatStore;
+    });
 }

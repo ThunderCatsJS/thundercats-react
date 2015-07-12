@@ -50,19 +50,19 @@
   "peerDependencies": {
     "react": "^0.13.1",
     "rx": "^2.3.14",
-    "thundercats": "^2.0.0-rc6"
+    "thundercats": "^2.0.0-rc7"
   },
   "devDependencies": {
     "babel": "^5.4.7",
     "babel-core": "^5.6.15",
-    "babel-eslint": "^3.0.1",
+    "babel-eslint": "^3.1.23",
     "babel-loader": "^5.3.1",
     "babel-runtime": "^5.0.12",
     "chai": "^2.1.1",
     "chai-as-promised": "^5.0.0",
     "envify": "^3.4.0",
-    "eslint": "^0.21.0",
-    "eslint-plugin-react": "^2.1.1",
+    "eslint": "^0.24.0",
+    "eslint-plugin-react": "^2.7.0",
     "istanbul": "^0.3.7",
     "istanbul-coveralls": "^1.0.2",
     "jsdom": "^5.0.0",
@@ -75,6 +75,7 @@
     "rx": "^2.3.14",
     "sinon": "^1.11.1",
     "sinon-chai": "^2.7.0",
+    "thundercats": "^2.0.0-rc7",
     "webpack": "^1.10.1"
   }
 }
