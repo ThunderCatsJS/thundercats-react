@@ -1,82 +1,85 @@
-[![Coverage Status](https://coveralls.io/repos/berkeleytrye/thundercats-react/badge.svg)](https://coveralls.io/r/berkeleytrue/thundercats-react)
-[![Stories in Ready](https://badge.waffle.io/berkeleytrue/thundercats-react.png?label=ready&title=Ready)](https://waffle.io/berkeleytrue/thundercats-react)
+[![Coverage Status](https://coveralls.io/repos/thundercatsjs/thundercats-react/badge.svg)](https://coveralls.io/r/berkeleytrue/thundercats-react)
 [![Join the chat at https://gitter.im/r3dm/thundercats](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/r3dm/thundercats?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![JS.ORG](https://img.shields.io/badge/js.org-thundercats-ffb400.svg?style=flat-square)](http://js.org)
 
 # ThunderCats-React
 
-Render and prefetch data for your react app using ThunderCats.js
-
+Render and pre-fetch data for your react app using ThunderCats.js
 
 ## Guide
 
+### Contain
 
-### The Container
+`contain` is a function that wraps your component in a Higher Order React Component called a container. The container is responsible for:
 
-createContainer is a function that wraps your component in a React Component use to wrap your components. The Container is responible for many things. For instance, 
-
-* Setting requested actions on your Components props.
-* Listening to a registered store(s).
+* Setting requested actions on your components props.
+* Listening to a registered store(s) and setting their values on as your
+  components props.
 * Setting fetch action to pre-fetch data when using renderToString method.
-* fetch lifecycles
+* fetch lifecycles hooks
 
-This is how you use it.
 
 ```js
 import { createContainer } from 'thundercats';
 
-const options = {
-};
-
-const Div = React.createClass({
+const Comp = React.createClass({
   render() {
-    <div />
+    console.log('props', this.props);
+    // => { chatActions, messageActions, message }
+    return <h1>Hello World</h1>;
   }
 });
 
-const WrappedDiv = createContainer(options, Div);
-
+const options = {
+  actions: [
+    'chatActions',
+    'messageActions'
+  ],
+  store: 'messageStore',
+  map: (messages) => ({ message: messages[0] })
+};
+const ContainedComponent = createContainer(options, Comp);
 ```
-By itself it doesn't do much.  Check out the example below. 
+
+or use as a decorator
 
 ```js
 
 // note: using es7 Decorators
- @createContainer({
-      // actions to be made avaible on this components props
-      actions: 'chatActions', // can be an array of strings
-      
-      // stores this component should subscribe too.
-      stores: [
-        'messageStore',
-        'threadStore'
-      ],
-      // a function that takes the values of the stores
-      // and returns an Object{ messages, thread }
-      combineLatest: function(messages, threadStoreState) {
-        return { messageStoreState, threadStoreState.threadId };
-      }
-      
-      // The actions class and method to call to prefetch data
-      // when using cat.renderToString method
-      fetchAction: 'chatActions.fetchMessages',
-      
-      // Which store to listen for fetch completion
-      // note: if the component subscribes to only one store this can be ommited.
-      fetchWaitFor: 'messagesStore',
-      
-      // the payload to use when calling the fetchAction
-      // e.i chatActions.fetchMessages(getPayload(props, context));
-      getPayload: function(props, context) {
-        return { path: props.path };
-      },
-      
-      // The fetch action is called on componentDidMount but can be called
-      // continuesly as the props change depending on the return of 
-      // this function
-      shouldContainerFetch: function(props, nextProps) {
-        return props.threadID !== nextProps.threadID;
-      }
+// note: contain is an alias of createContainer
+ @contain({
+    // actions to be made avaible on this components props
+    actions: 'chatActions', // can be an array of strings
+
+    // stores this component should subscribe too.
+    stores: [
+      'messageStore',
+      'threadStore'
+    ],
+    // a function that takes the values of the stores
+    // and returns an Object{ messages, thread }
+    combineLatest: function(messages, threadStoreState) {
+      return { messageStoreState, threadStoreState.threadId };
+    }
+
+    // The actions class and method to call to prefetch data
+    // when using cat.renderToString method
+    fetchAction: 'chatActions.fetchMessages',
+
+    // Which store to listen for fetch completion
+    // note: if the component subscribes to only one store this can be ommited.
+    fetchWaitFor: 'messagesStore',
+
+    // the payload to use when calling the fetchAction
+    // e.i chatActions.fetchMessages(getPayload(props, context));
+    getPayload(props, context) {
+      return { path: props.path };
+    },
+
+    // The fetch action is called on componentDidMount but can be called
+    // continuesly as the props change depending on the return of
+    // this function
+    shouldContainerFetch: ((props, nextProps) => props.threadID !== nextProps.threadID)
 })
 export default class MessageSection extends React.Component {
   constructor(props) {
@@ -89,7 +92,7 @@ export default class MessageSection extends React.Component {
     messages: PropTypes.array,
     thread: PropTypes.string
   }
-  
+
   // using React-Router
   static contextTypes = {
     router: PropTypes.func.isRequired,
@@ -139,30 +142,20 @@ export default class MessageSection extends React.Component {
 
 ```
 
----
-
-
 ### Render(cat, reactElement, DOMelement)
 
 Render function. Under the hood it uses Reacts render function but wraps your component so that the cat will be available in your components context and returns an observable. The observable produces the instance returned by React.render.
 
-### RenderToString(cat, reactElement, DOMelement)
-
-This is where things get sweet. cat.renderToString acts as above except the observable returns an object composed of the markup and prefetched data.
-
-
 ```js
-class TodoApp extends Cat {
-  constructor() {
-    super();
-    this.register(TodoActions);
-    this.register(TodoStore, this);
-  }
-}
+class TodoApp = Cat()
+  .init(({ instance }) => {
+    instance.register(TodoActions);
+    instance.register(TodoStore, null, instance);
+  });
 
-const todoApp = new TodoApp();
+const todoApp = TodoApp();
 
-Render(todoApp, ppElement, document.getElementById('todoapp')).subscribe(
+Render(todoApp, appElement, document.getElementById('todoapp')).subscribe(
   () => {
     console.log('app rendered!');
   },
@@ -172,13 +165,128 @@ Render(todoApp, ppElement, document.getElementById('todoapp')).subscribe(
 );
 ```
 
+### RenderToString(cat, reactElement, DOMelement)
 
-### API
+This is where things get sweet. RenderToString acts as above except the observable returns an object composed of the markup and prefetched data.
 
-more to come...
+```js
+// expressServer.js
+RenderToString(todoApp, appElement)
+  .subscribe(
+    ({ markup, data }) => {
+    console.log('markup generated');
+
+    // expose data on window object
+    res.expose(data, 'data');
+    console.log('rendering jade');
+    res.render('layout', { html: markup }, function(err, markup) {
+        if (err) { return next(err); }
+        console.log('jade template rendered');
+
+        debug('sending %s to user', decodedURI);
+        return res.send(markup);
+    });
+    },
+    next,
+    () => debug('rendering concluded')
+  );
+}
+```
+on the client
+
+```js
+
+// data to hydrate app state
+const data = window && window.__app__ ? window.__app__.data : {};
+// hydrate adds the data to the proper stores
+cat.hydrate(data)
+    // stores are primed
+    // app renders with correct state
+    return Render(React.createElement(App), mountNode);
+  })
+  .subscribe(
+    () => console.log('React rendered!'),
+    (err) => console.log('an error occured', err)
+  });
+
+```
+
+## API
+
+### createContainer(options : object) : ReactComponent
+
+#### options : object
+
+####  options.actions : string|Array\<string\>
+
+A string or an array of strings actions displayNames. On component instantiation, the container will pull these out of cat using `cat.getActions` and pass them in as props to your component.
+
+#### options.store : string
+
+Store displayName used with `cat.getStore`. On component instantiation and store
+updates the value held by the store will be placed as props on your component.
+
+#### options.map : function
+
+Used when in conjunction with options.store. container calls `map` function with
+the value held by the store. The return is applied as props to your component instead of directly applying the value held by the store to your component.
+Note: Not used if no `store` is specified.
+
+#### options.stores : Array\<string\>
+
+If your component requires the value of multiple stores, you can supply an array
+of strings to `stores` prop. The requires the use of `combineLatest` option.
+
+#### options.combineLatest : function
+
+Required when using `stores` option. The container will call `combineLatest`
+with each argument corresponding to the value held be each store. The order of
+the arguments depends on the order of store displayNames in `stores` array. The
+return from combineLatest is applied as props to your component.
+
+#### options.fetchAction : string
+
+A string in the form 'actionsDisplayName.observableMethod', for example
+`todoActions.fetchTodos`. The container will use `cat.getActions` to find
+`actionsDisplayName` and call `observableMethod` during `componentWillMount` This is where you define your data fetching for ThunderCats to automatically do during RenderToString.
+
+Note: Must be used with `options.fetchWaitFor`
+
+#### options.fetchWaitFor
+
+A string
+
+#### options.getPayload
+#### options.storeOnError
+#### options.onCompleted
+#### options.shouldContainerFetch
+
+### contain(options : object) : ReactComponent
+
+Alias for createContianer
+
+### Render(catInstance, reactElement, DOMElement) : observable
 
 
+### RenderToString(catInstance, reactElement) : observable
 
-
-
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 <small>Don't Forget To Be Awesome</small>
