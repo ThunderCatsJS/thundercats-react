@@ -44,20 +44,15 @@ function verifyStore(displayName, storeName, store) {
   }
 }
 
-export function createContainer(options, Component) {
-  /* istanbul ignore else */
-  if (__DEV__) {
-    invariant(
-      typeof options === 'object',
-      'createContainer should get an options object but got %s',
-      options
-    );
-  }
-
+export function createContainer(options = {}, Component) {
   /* istanbul ignore else */
   if (!Component) {
     return createContainer.bind(null, options);
   }
+
+  const getPayload = typeof options.getPayload === 'function' ?
+    options.getPayload :
+    (() => {});
 
   /* istanbul ignore else */
   if (__DEV__) {
@@ -184,13 +179,6 @@ export function createContainer(options, Component) {
             getName(this),
             options.store || options.fetchWaitFor
           );
-
-          invariant(
-            typeof options.getPayload === 'function',
-            '%s should get a function for options.getPayload but was given %s',
-            getName(this),
-            options.getPayload
-          );
         }
 
         const fetchActionsName = options.fetchAction.split('.')[0];
@@ -230,7 +218,7 @@ export function createContainer(options, Component) {
 
         if (cat.fetchMap) {
           debug('%s getPayload in componentWillMount', getName(this));
-          const payload = options.getPayload(
+          const payload = getPayload(
             this.props,
             getChildContext(Component.contextTypes, this.context)
           );
@@ -260,10 +248,10 @@ export function createContainer(options, Component) {
           );
       }
       /* istanbul ignore else */
-      if (options.action && options.getPayload) {
+      if (options.action && getPayload) {
         debug('%s fetching on componentDidMount', getName(this));
         options.action(
-          options.getPayload(
+          getPayload(
             this.props,
             getChildContext(Component.contextTypes, this.context)
           )
@@ -285,7 +273,7 @@ export function createContainer(options, Component) {
       ) {
         debug('%s fetching on componentWillReceiveProps', getName(this));
         options.action(
-          options.getPayload(
+          getPayload(
           nextProps,
           getChildContext(Component.contextTypes, nextContext)
         ));
