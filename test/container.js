@@ -52,10 +52,10 @@ describe('Container', function() {
         createContainerDecorator = createContainer({});
       });
 
-      it('should throw when not given a Component', () => {
+      it('should throw when given non function', () => {
         expect(() => {
           createContainerDecorator('not the momma');
-        }).to.throw(/should get a React Component/);
+        }).to.throw(/should get a constructor function/);
       });
 
       it('should return a Component', () => {

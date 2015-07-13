@@ -62,10 +62,8 @@ export function createContainer(options, Component) {
   /* istanbul ignore else */
   if (__DEV__) {
     invariant(
-      Component.prototype &&
-      Component.prototype.render &&
-      Component.prototype.setState,
-      'createContainer should get a React Component but got %s',
+      typeof Component === 'function',
+      'createContainer should get a constructor function but got %s',
       getName(Component) + 'Container'
     );
   }
