@@ -219,7 +219,7 @@ export function createContainer(options = {}, Component) {
         if (cat.fetchMap) {
           debug('%s getPayload in componentWillMount', getName(this));
           const payload = getPayload(
-            this.props,
+            assign(this.state, this.props),
             getChildContext(Component.contextTypes, this.context)
           );
 
@@ -248,11 +248,11 @@ export function createContainer(options = {}, Component) {
           );
       }
       /* istanbul ignore else */
-      if (options.action && getPayload) {
+      if (options.action) {
         debug('%s fetching on componentDidMount', getName(this));
         options.action(
           getPayload(
-            this.props,
+            assign(this.state, this.props),
             getChildContext(Component.contextTypes, this.context)
           )
         );
@@ -265,8 +265,8 @@ export function createContainer(options = {}, Component) {
         options.action &&
         options.shouldContainerFetch &&
         options.shouldContainerFetch(
-          this.props,
-          nextProps,
+          assign(this.state, this.props),
+          assign(this.state, nextProps),
           this.context,
           nextContext
         )
@@ -274,7 +274,7 @@ export function createContainer(options = {}, Component) {
         debug('%s fetching on componentWillReceiveProps', getName(this));
         options.action(
           getPayload(
-          nextProps,
+          assign(this.state, nextProps),
           getChildContext(Component.contextTypes, nextContext)
         ));
       }
