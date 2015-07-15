@@ -1,6 +1,6 @@
 # July 14, 2015 0.0.4
 
-* [feaab4d](../../commit/feaab4d) fix getPayload and shouldContainerFetch now get updates from stores
+* [4c403b4](../../commit/4c403b4) fix getPayload and shouldContainerFetch now get updates from stores
 
 # Jul 12, 2015 0.0.3
 
