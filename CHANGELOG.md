@@ -1,3 +1,7 @@
+# July 18, 2015 0.0.5
+
+* [8aa3773](../../commit/8aa3773) fix Object.assign should be given empty object as first argument causing issues with shouldContainerFetch
+
 # July 14, 2015 0.0.4
 
 * [4c403b4](../../commit/4c403b4) fix getPayload and shouldContainerFetch now get updates from stores
