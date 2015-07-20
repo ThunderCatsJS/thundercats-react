@@ -251,25 +251,56 @@ A string in the form 'actionsDisplayName.observableMethod', for example
 `todoActions.fetchTodos`. The container will use `cat.getActions` to find
 `actionsDisplayName` and call `observableMethod` during `componentWillMount` This is where you define your data fetching for ThunderCats to automatically do during RenderToString.
 
-Note: Must be used with `options.fetchWaitFor`
+Note: Must be used with `options.fetchWaitFor` when not declared with a store.
 
-#### options.fetchWaitFor
+#### options.fetchWaitFor : string
 
-A string
+A string declaring which store should be used to wait for
 
-#### options.getPayload
-#### options.storeOnError
-#### options.onCompleted
-#### options.shouldContainerFetch
+#### options.getPayload : function(props: object, context: object) => object
+
+A function, which is called with the props and context object, that should
+return the object which will be passed to the fetch observable.
+
+#### options.storeOnError : function(err : Error)
+
+A function that is called when the store observable errors.
+
+#### options.onCompleted : function
+
+A function that is called when the store observable completes. In normal
+operations, this should never be called until your app shuts down.
+
+#### options.shouldContainerFetch : function(props : object, nextProps : object) => bool
+
+Fetch actions can be called multiple times in the lifecycle of a component. The
+first time the fetch action is called is during `componentDidMount`. The next
+time it can be called is during `componentWillRecieveProps`. This is useful if
+your store state is dependent on props passed to the component. Say you are
+using react-router. A router handler is passed the route parameters in as props.
+These are passed to `shouldContainerFetch` function. The return boolean is used to
+determine if the fetch action should be recalled with the value returned from
+`getPayload`. If the return is true, the fetch action is recalled.
 
 ### contain(options : object) : ReactComponent
 
 Alias for createContianer
 
-### Render(catInstance, reactElement, DOMElement) : observable
+### Render(catInstance, reactElement, DOMElement) : observable\<rootElement\>
 
+An observable wrapper around reacts render method. This function also wraps your
+react element in another component that adds the `catInstance` to reacts context.
+This is required for `createContainer` to work. The observable returns the root
+react element.
 
-### RenderToString(catInstance, reactElement) : observable
+### RenderToString(catInstance, reactElement) : observable\<{ markup : string, data : object }\>
+
+Same as above, but this will actually return an object with `markup` as the html
+string rendered by react's `renderToString` method and a data prop that is the
+state of all the stores that had a fetch action attached to it. This can then be
+used with something like [express-state](https://github.com/yahoo/express-state)
+to add the data object to the clients page and then be used to hydrate the
+stores on the client.
 
 <br>
 <br>
