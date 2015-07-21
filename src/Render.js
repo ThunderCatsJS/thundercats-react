@@ -4,7 +4,7 @@ import assign from 'object.assign';
 import debugFactory from 'debug';
 
 import ContextWrapper from './ContextWrapper';
-import { waitFor } from 'thundercats';
+import waitFor from 'thundercats/lib/waitFor';
 import { getName, getNameOrNull } from './utils';
 
 const debug = debugFactory('thundercats:render');
