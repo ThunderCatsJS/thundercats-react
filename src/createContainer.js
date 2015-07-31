@@ -233,20 +233,17 @@ export function createContainer(options = {}, Component) {
           options.action = action;
         }
       }
+      if (
+        typeof options.subscribeOnWillMount === 'function' &&
+        options.subscribeOnWillMount()
+      ) {
+        debug('%s subscribing on will mount', getName(this));
+        this.subscribeToObservableState();
+      }
     }
 
     componentDidMount() {
-      /* istanbul ignore else */
-      if (this.observableState) {
-        // Now that the component has mounted, we will use a long lived
-        // subscription
-        this.stateSubscription = this.observableState
-          .subscribe(
-            this.storeOnNext.bind(this),
-            options.storeOnError || storeOnError,
-            options.onCompleted || storeOnCompleted
-          );
-      }
+      this.subscribeToObservableState();
       /* istanbul ignore else */
       if (options.action) {
         debug('%s fetching on componentDidMount', getName(this));
@@ -286,6 +283,23 @@ export function createContainer(options = {}, Component) {
         debug('%s disposing store subscription', getName(this));
         this.stateSubscription.dispose();
         this.stateSubscription = null;
+      }
+    }
+
+    subscribeToObservableState() {
+      /* istanbul ignore else */
+      if (
+        this.observableState &&
+        !this.stateSubscription
+      ) {
+        // Now that the component has mounted, we will use a long lived
+        // subscription
+        this.stateSubscription = this.observableState
+          .subscribe(
+            this.storeOnNext.bind(this),
+            options.storeOnError || storeOnError,
+            options.onCompleted || storeOnCompleted
+          );
       }
     }
 

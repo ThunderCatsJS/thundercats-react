@@ -282,6 +282,16 @@ These are passed to `shouldContainerFetch` function. The return boolean is used 
 determine if the fetch action should be recalled with the value returned from
 `getPayload`. If the return is true, the fetch action is recalled.
 
+#### options.subscribeOnWillMount : function() => bool
+
+A function that will subscribe the container to the observable store during
+componentWillMount React lifecycle if it returns true.
+
+Normal behavior is to subscribe to store notifications on componentDidMount
+lifecycle. This happens after initial render pass in the React lifecycle. There
+may be instances where you as a user might require the container to subscribe
+before rendering starts. This function allows you to dictate that.
+
 ### contain(options : object) : ReactComponent
 
 Alias for createContianer

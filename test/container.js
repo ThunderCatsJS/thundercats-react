@@ -530,6 +530,82 @@ describe('Container', function() {
   });
 });
 
+describe('subscribeOnWillMount', function() {
+  let cat, cont;
+  beforeEach(() => {
+    let CatActions = createActions();
+    let CatStore = createStore();
+
+    cat = createCat();
+    cat.register(CatActions);
+    cat.register(CatStore, null, cat);
+  });
+
+  afterEach(() => {
+    if (cont) {
+      unmountComp(cont);
+    }
+  });
+
+  it('should subscribe to store on componentWillMount when true', () => {
+    const Comp = createContainer({
+      store: 'catStore',
+      actions: 'catActions',
+      subscribeOnWillMount() {
+        return true;
+      }
+    }, createClass({
+      contextTypes: {
+        cat: React.PropTypes.object
+      },
+      componentWillMount() {
+        const catStore = this.context.cat.getStore('catStore');
+        catStore.hasObservers().should.be.true;
+      }
+    }));
+    const Burrito = ContextWrapper.wrap(
+      React.createElement(Comp),
+      cat
+    );
+    const { container, instance } = render(Burrito);
+    cont = container;
+
+    let compContainer =
+      ReactTestUtils.findRenderedComponentWithType(instance, Comp);
+    expect(compContainer.stateSubscription).to.exist;
+  });
+
+  it('should subscribe to store on componentDidMount when false', () => {
+    const Comp = createContainer({
+      store: 'catStore',
+      actions: 'catActions',
+      subscribeOnWillMount() {
+        return false;
+      }
+    }, createClass({
+      contextTypes: {
+        cat: React.PropTypes.object
+      },
+      componentWillMount() {
+        const catStore = this.context.cat.getStore('catStore');
+        catStore.hasObservers().should.be.false;
+      }
+    }));
+    const Burrito = ContextWrapper.wrap(
+      React.createElement(Comp),
+      cat
+    );
+    let { container, instance } = render(Burrito);
+    const catStore = cat.getStore('catStore');
+    catStore.hasObservers().should.be.true;
+    cont = container;
+
+    let compContainer =
+      ReactTestUtils.findRenderedComponentWithType(instance, Comp);
+    expect(compContainer.stateSubscription).to.exist;
+  });
+});
+
 function createStore(initValue = {}, name = 'CatStore') {
   return Store(initValue)
     .refs({ displayName: name })
