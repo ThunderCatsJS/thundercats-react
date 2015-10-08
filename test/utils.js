@@ -28,7 +28,9 @@ module.exports = {
 
 function createActions(spy = function() {}, name = 'CatActions') {
   return Actions({
-    displayName: name,
+    refs: {
+      displayName: name
+    },
     doAction(val) {
       spy(val);
       return val;
