@@ -23,11 +23,10 @@
     "url": "https://github.com/berkeleytrue/thundercats-react"
   },
   "scripts": {
-    "build": "npm run build-clean && npm run build-npm && npm run build-umd",
+    "build": "npm run build-clean && npm run build-npm",
     "build-npm": "babel src --out-dir lib",
-    "build-umd": "NODE_ENV=production webpack src/ lib/umd/ThunderCatsReact.js && NODE_ENV=production webpack -p src/ lib/umd/ThunderCatsReact.min.js && npm run build-size",
     "build-size": "echo \"gzipped, the umd build is `gzip -c lib/umd/ThunderCatsReact.min.js | wc -c | sed -e 's/^[[:space:]]*//'` bytes\"",
-    "build-clean": "rm -rf lib/* && mkdir lib/umd",
+    "build-clean": "rm -rf lib/*",
     "cover": "istanbul cover _mocha -- --compilers js:./registerWithOptions.js",
     "coverAlls": "istanbul cover _mocha -- --compilers js:./registerWithOptions.js && istanbul-coveralls",
     "lint": "eslint .",
