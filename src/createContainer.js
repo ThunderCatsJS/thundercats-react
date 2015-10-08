@@ -244,6 +244,16 @@ export function createContainer(options = {}, Component) {
 
     componentDidMount() {
       this.subscribeToObservableState();
+      if (
+        typeof options.isPrimed === 'function' &&
+        options.isPrimed(assign({}, this.state, this.props))
+      ) {
+        debug(
+          '%s store is primed, will not fetch on componentDidMount',
+          getName(this)
+        );
+        return null;
+      }
       /* istanbul ignore else */
       if (options.action) {
         debug('%s fetching on componentDidMount', getName(this));

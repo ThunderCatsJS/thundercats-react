@@ -383,6 +383,48 @@ describe('Container', function() {
     });
   });
 
+  describe('isPrimed', function() {
+    let options, cat, divContainer;
+    beforeEach(() => {
+      options = {
+        store: 'catStore',
+        fetchAction: 'catActions.doAction',
+        getPayload: () => ({})
+      };
+      cat = createCat();
+      cat.register(createActions());
+      cat.register(createStore(), null, cat);
+    });
+
+    after(() => {
+      if (divContainer) {
+        unmountComp(divContainer);
+      }
+    });
+
+    it('should block initial fetch when returns true', () => {
+      let catActions = cat.getActions('catActions');
+      let spy = sinon.spy(catActions, 'doAction');
+      let Comp = createContainer(
+        assign(
+          {},
+          options,
+          {
+            isPrimed: () => true
+          }
+        ),
+        createClass()
+      );
+      let Burrito = ContextWrapper.wrap(
+        React.createElement(Comp),
+        cat
+      );
+      divContainer = render(Burrito).container;
+      spy.restore();
+      spy.should.have.not.called;
+    });
+  });
+
   describe('shouldContainerFetch', function() {
     let options, cat, divContainer;
     beforeEach(() => {
