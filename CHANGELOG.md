@@ -1,3 +1,13 @@
+# October 8, 2015 v0.2.0
+
+This release has breaking changes:
+
+* [e6e718a](../../commit/e6e718a) Removes the Object.assign polyfil
+
+And adds the following features:
+
+* [b221c8c](../../commit/b221c8c) Adds isPrimed feature to the containers options object
+
 # July 31, 2015 v0.1.0
 
 * [beaea56](../../commit/beaea56) add subscribeOnWillMount option to container
