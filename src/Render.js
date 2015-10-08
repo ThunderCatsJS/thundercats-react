@@ -1,6 +1,5 @@
 import Rx from 'rx';
 import React from 'react';
-import assign from 'object.assign';
 import debugFactory from 'debug';
 
 import ContextWrapper from './ContextWrapper';
@@ -8,6 +7,7 @@ import waitFor from 'thundercats/lib/waitFor';
 import { getName, getNameOrNull } from './utils';
 
 const debug = debugFactory('thundercats:render');
+const assign = Object.assign;
 
 export function fetch(fetchMap) {
   if (!fetchMap || fetchMap.size === 0) {

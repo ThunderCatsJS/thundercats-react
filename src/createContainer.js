@@ -1,12 +1,12 @@
 import Rx from 'rx';
 import React, { PropTypes } from 'react';
 import invariant from 'invariant';
-import assign from 'object.assign';
 import debugFactory from 'debug';
 import { getName, isObservable } from './utils';
 
 const __DEV__ = process.env.NODE_ENV !== 'production';
 const debug = debugFactory('thundercats:container');
+const assign = Object.assign;
 
 function getChildContext(childContextTypes, currentContext) {
 
