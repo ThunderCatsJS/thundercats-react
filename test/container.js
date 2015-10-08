@@ -5,13 +5,13 @@ import { Store, Cat } from 'thundercats';
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
-import assign from 'object.assign';
 
 import utils from './utils';
 import { getNameOrNull } from '../src/utils';
 import ContextWrapper from '../src/ContextWrapper';
 import { createContainer } from '../src';
 
+const assign = Object.assign;
 const {
   createActions,
   createClass,

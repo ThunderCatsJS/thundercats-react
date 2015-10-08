@@ -10,10 +10,10 @@ global.navigator = {
 
 console.debug = console.log;
 
-var assign = require('object.assign');
 var Actions = require('thundercats').Actions;
 var React = require('react/addons');
 var TestUtils = React.addons.TestUtils;
+var assign = Object.assign;
 
 module.exports = {
   createActions: createActions,
