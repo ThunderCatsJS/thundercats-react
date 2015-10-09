@@ -47,8 +47,8 @@
   },
   "peerDependencies": {
     "react": "^0.13.1",
-    "rx": "^2.3.14",
-    "thundercats": "^2.0.0"
+    "rx": "^4.0.0",
+    "thundercats": "^3.0.0"
   },
   "devDependencies": {
     "babel": "^5.4.7",
@@ -70,10 +70,10 @@
     "node-libs-browser": "^0.5.2",
     "q": "^1.2.0",
     "react": "^0.13.1",
-    "rx": "^2.3.14",
+    "rx": "^4.0.0",
     "sinon": "^1.11.1",
     "sinon-chai": "^2.7.0",
-    "thundercats": "^2.0.0",
+    "thundercats": "^3.0.0",
     "webpack": "^1.10.1"
   }
 }

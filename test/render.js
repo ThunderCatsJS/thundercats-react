@@ -177,7 +177,7 @@ describe('render', function() {
       let renderObserable = Render(cat, element, divContainer);
       expect(renderObserable).to.exist;
       renderObserable
-        .firstOrDefault()
+        .first()
         .subscribe(function(inst) {
           expect(inst).to.exist;
           ReactTestUtils.isCompositeComponent(inst).should.be.true;
@@ -199,7 +199,7 @@ describe('render', function() {
 });
 
 function createStore(initValue = null) {
-  return Store(initValue)
+  return Store({ refs: { value: initValue }})
     .refs({ displayName: 'CatStore' })
     .init(({ instance, args }) => {
       const [ cat ] = args;

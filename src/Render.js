@@ -27,7 +27,7 @@ export function fetch(fetchMap) {
     .toArray()
     .tap(arrayOfStores => debug('waiting for %s stores', arrayOfStores.length))
     .flatMap(arrayOfStores => {
-      return waitFor(...arrayOfStores).firstOrDefault();
+      return waitFor(...arrayOfStores).first();
     });
 
   const storeNames = fetchCtx
@@ -113,7 +113,7 @@ export function RenderToString(cat, Component) {
         fetchMap
       };
     })
-    .firstOrDefault()
+    .first()
     .tapOnNext(() => cat.fetchMap = null);
 }
 
