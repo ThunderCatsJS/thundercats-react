@@ -1,3 +1,9 @@
+# October 9, 2015 v0.3.0
+
+This release has breaking changes:
+
+* [401de8e](../../commit/401de8e) Bump to ThunderCats 3.0.0 and Rx 4.0.0
+
 # October 8, 2015 v0.2.0
 
 This release has breaking changes:
