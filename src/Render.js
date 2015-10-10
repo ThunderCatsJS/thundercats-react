@@ -1,5 +1,6 @@
 import Rx from 'rx';
-import React from 'react';
+import { render } from 'react-dom';
+import { renderToString, renderToStaticMarkup } from 'react-dom/server';
 import debugFactory from 'debug';
 
 import ContextWrapper from './ContextWrapper';
@@ -62,7 +63,7 @@ export function fetch(fetchMap) {
 export function RenderToObs(Comp, DOMContainer) {
   return new Rx.AnonymousObservable(observer => {
     let instance = null;
-    instance = React.render(Comp, DOMContainer, (err) => {
+    instance = render(Comp, DOMContainer, (err) => {
       /* istanbul ignore else */
       if (err) { return observer.onError(err); }
       /* istanbul ignore else */
@@ -90,7 +91,7 @@ export function RenderToString(cat, Component) {
     .map(Comp => ContextWrapper.wrap(Comp, cat))
     .doOnNext(Burrito => {
       debug('initiation fetcher registration');
-      React.renderToStaticMarkup(Burrito);
+      renderToStaticMarkup(Burrito);
       debug('fetcher registration complete');
     })
     .flatMap(
@@ -106,7 +107,7 @@ export function RenderToString(cat, Component) {
       }
     )
     .map(({ Burrito, data, fetchMap }) => {
-      let markup = React.renderToString(Burrito);
+      let markup = renderToString(Burrito);
       return {
         markup,
         data,

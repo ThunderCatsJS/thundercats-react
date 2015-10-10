@@ -11,8 +11,9 @@ global.navigator = {
 console.debug = console.log;
 
 var Actions = require('thundercats').Actions;
-var React = require('react/addons');
-var TestUtils = React.addons.TestUtils;
+var React = require('react');
+var ReactDOM = require('react-dom');
+var TestUtils = require('react-addons-test-utils');
 var assign = Object.assign;
 
 module.exports = {
@@ -59,7 +60,7 @@ function isComponentClass(Comp) {
 
 function render(Comp) {
   var container = document.createElement('div');
-  var instance = React.render(Comp, container);
+  var instance = ReactDOM.render(Comp, container);
   return {
     instance: instance,
     container: container
@@ -67,5 +68,5 @@ function render(Comp) {
 }
 
 function unmountComp(container) {
-  return React.unmountComponentAtNode(container);
+  return ReactDOM.unmountComponentAtNode(container);
 }

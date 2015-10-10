@@ -1,5 +1,4 @@
-import React from 'react';
-import cloneWithProps from 'react/lib/cloneWithProps';
+import React, { Children } from 'react';
 import invariant from 'invariant';
 
 const ContextWrapper = React.createClass({
@@ -20,7 +19,7 @@ const ContextWrapper = React.createClass({
   },
 
   render() {
-    return cloneWithProps(this.props.children);
+    return Children.only(this.props.children);
   }
 });
 

@@ -59,7 +59,7 @@ describe('ContextWrapper', function() {
       // This test is brittle
       // latest version of react use console.error this test may need to change
       // with next release
-      spy = sinon.spy(console, 'warn');
+      spy = sinon.spy(console, 'error');
       ReactTestUtils.renderIntoDocument(React.createElement(
         ContextWrapper,
         { cat: 'notTheMomma' },

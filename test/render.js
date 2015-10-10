@@ -2,7 +2,13 @@
 import Rx from 'rx';
 import { Cat, Store } from 'thundercats';
 import chai, { expect } from 'chai';
-import { React, createActions, createClass, ReactTestUtils } from './utils';
+import {
+  React,
+  createActions,
+  createClass,
+  ReactTestUtils,
+  unmountComp
+} from './utils';
 
 import { createContainer, Render, RenderToString } from '../src';
 
@@ -170,7 +176,7 @@ describe('render', function() {
     });
 
     afterEach(() => {
-      React.unmountComponentAtNode(divContainer);
+      unmountComp(divContainer);
     });
 
     it('should return react instance', (done) => {
