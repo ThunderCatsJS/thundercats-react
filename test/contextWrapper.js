@@ -1,5 +1,5 @@
 process.env.NODE_ENV = 'development';
-/* eslint-disable no-unused-expressions */
+/* eslint-disable no-unused-expressions, react/no-multi-comp */
 import chai, { expect } from 'chai';
 import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
