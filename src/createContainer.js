@@ -63,7 +63,7 @@ export function createContainer(options = {}, Component) {
     );
   }
 
-  return class extends React.Component {
+  class Container extends React.Component {
 
     constructor(props, context) {
       super(props, context);
@@ -324,7 +324,9 @@ export function createContainer(options = {}, Component) {
         assign({}, this.state, this.props)
       );
     }
-  };
+  }
+
+  return Container;
 }
 
 export const contain = createContainer;
