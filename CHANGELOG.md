@@ -1,3 +1,9 @@
+# November 3, 2015 v0.4.0
+
+This release has breaking changes:
+
+* [ec35d4d](../../commit/ec35d4d) Update to React 0.14
+
 # October 9, 2015 v0.3.0
 
 This release has breaking changes:
