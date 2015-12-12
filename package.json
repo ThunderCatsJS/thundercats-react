@@ -60,7 +60,7 @@
     "chai": "^3.4.0",
     "chai-as-promised": "^5.0.0",
     "envify": "^3.4.0",
-    "eslint": "^1.8.0",
+    "eslint": "^1.10.2",
     "eslint-plugin-react": "^3.6.3",
     "istanbul": "^0.4.0",
     "istanbul-coveralls": "^1.0.2",
