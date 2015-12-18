@@ -76,7 +76,7 @@
     "rx": "^4.0.0",
     "sinon": "^1.11.1",
     "sinon-chai": "^2.7.0",
-    "thundercats": "^3.0.0",
+    "thundercats": "^3.1.0",
     "webpack": "^1.10.1"
   }
 }
