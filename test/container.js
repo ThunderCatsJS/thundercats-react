@@ -1,5 +1,6 @@
 process.env.NODE_ENV = 'development';
-/* eslint-disable no-unused-expressions */
+/* eslint-disable no-unused-expressions, react/display-name */
+/* eslint-disable react/no-multi-comp */
 import Rx from 'rx';
 import { Store, Cat } from 'thundercats';
 import chai, { expect } from 'chai';
