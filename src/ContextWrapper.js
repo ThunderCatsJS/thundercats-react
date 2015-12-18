@@ -24,6 +24,7 @@ const ContextWrapper = React.createClass({
 });
 
 // wrap a component in this context wrapper
+/* eslint-disable react/no-multi-comp, react/display-name */
 ContextWrapper.wrap = function wrap(element, cat) {
   invariant(
     React.isValidElement(element),

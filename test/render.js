@@ -1,4 +1,4 @@
-/* eslint-disable no-unused-expressions */
+/* eslint-disable no-unused-expressions, react/display-name */
 import Rx from 'rx';
 import { Cat, Store } from 'thundercats';
 import chai, { expect } from 'chai';

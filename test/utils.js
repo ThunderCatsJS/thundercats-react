@@ -1,4 +1,4 @@
-/* eslint-disable react/no-multi-comp */
+/* eslint-disable react/no-multi-comp, react/display-name */
 var doc = require('jsdom').jsdom('<!doctype html><html><body></body></html>');
 
 global.document = doc;
