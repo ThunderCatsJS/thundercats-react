@@ -1,7 +1,8 @@
 /* eslint-disable no-unused-expressions, react/display-name */
-import Rx from 'rx';
-import { Cat, Store } from 'thundercats';
-import chai, { expect } from 'chai';
+/* eslint-disable react/no-multi-comp */
+import Rx, { Observable } from 'rx';
+import { Actions, dehydrate, Cat, Store } from 'thundercats';
+import chai, { expect, assert } from 'chai';
 import {
   React,
   createActions,
@@ -10,12 +11,29 @@ import {
   unmountComp
 } from './utils';
 
-import { createContainer, Render, RenderToString } from '../src';
+import { createContainer, render$, renderToString$ } from '../src';
+import { renderToObs$ } from '../src/Render';
 
 Rx.config.longStackSupport = true;
 chai.should();
 
-describe('RenderToString', function() {
+describe('renderToObs$', function() {
+  it('should report errors', () => {
+    renderToObs$().subscribe(
+      () => {},
+      err => {
+        console.log(err.message);
+        assert(err, 'did not report error');
+        assert(
+          (/invalid component element/i).test(err.message),
+          'did not throw expected error'
+        );
+      }
+    );
+  });
+});
+
+describe('renderToString$', function() {
   let cat;
   this.timeout(6000);
   beforeEach(() => {
@@ -25,7 +43,7 @@ describe('RenderToString', function() {
   it('should return an observable', () => {
     let TestComp = createClass({});
     let TestElement = React.createElement(TestComp);
-    let renderObs = RenderToString(cat, TestElement);
+    let renderObs = renderToString$(cat, TestElement);
     renderObs.subscribe.should.be.a('function');
   });
 
@@ -49,7 +67,7 @@ describe('RenderToString', function() {
         },
         createClass()
       );
-      RenderToString(cat, React.createElement(TestComp))
+      renderToString$(cat, React.createElement(TestComp))
         .subscribe(({ fetchMap }) => {
           expect(fetchMap).to.exist;
           fetchMap.size.should.equal(1);
@@ -75,7 +93,7 @@ describe('RenderToString', function() {
         },
         createClass()
       );
-      RenderToString(cat, React.createElement(TestComp))
+      renderToString$(cat, React.createElement(TestComp))
         .subscribe(({ fetchMap }) => {
           const fetchContext = fetchMap.get('catActions.doAction');
           expect(fetchContext).to.exist;
@@ -109,31 +127,122 @@ describe('RenderToString', function() {
       cat.register(CatStore, null, cat);
     });
 
-    it('should return markup, data', (done) => {
-      RenderToString(cat, element)
-        .subscribe(data => {
-          expect(data.markup).to.exist;
-          expect(data.data).to.exist;
-          data.markup.should.be.a.string;
-          data.data.should.be.an('object');
+    it('should return markup', done => {
+      renderToString$(cat, element)
+        .subscribe(({ markup })=> {
+          assert.equal(
+            typeof markup,
+            'string',
+            'markup returned is not a string'
+          );
           done();
         });
     });
 
+    it('should pre-fetch data', done => {
+
+      const felineElement = React.createElement(createContainer(
+        {
+          store: 'felineStore',
+          fetchAction: 'felineActions.doAction',
+          getPayload: () => ({})
+        },
+        createClass({
+          displayName: 'Feline',
+
+          render() {
+            return element;
+          }
+        })
+      ));
+
+
+      const FelineActions = Actions({
+        refs: { displayName: 'FelineActions' },
+        doAction() {
+          return Observable.just({ replace: { fur: 'sneeze' } }).delay(900);
+        }
+      });
+
+      const CatActions = Actions({
+        refs: { displayName: 'catActions' },
+        doAction() {
+          return Observable.just({ set: { foo: 'baz' } }).delay(500);
+        }
+      });
+
+      const FelineStore = Store({
+        refs: {
+          value: { pet: 'pur' },
+          displayName: 'FelineStore'
+        },
+        init({ instance: store, args: [cat] }) {
+          const actions = cat.getActions('FelineActions');
+          store.register(actions.doAction);
+        }
+      });
+
+      const CatStore = Store({
+        refs: {
+          value: { foo: 'bar' },
+          displayName: 'CatStore'
+        },
+        init({ instance: store, args: [cat] }) {
+          const actions = cat.getActions('catActions');
+          store.register(actions.doAction);
+        }
+      });
+
+
+      const cat = Cat()();
+
+      cat.register(CatActions);
+      cat.register(FelineActions);
+      cat.register(CatStore, null, cat);
+      cat.register(FelineStore, null, cat);
+
+      renderToString$(cat, felineElement)
+        .flatMap(
+          dehydrate(cat),
+        )
+        .doOnNext(({ CatStore, FelineStore })=> {
+          assert(
+            !FelineStore.pur,
+            'felineStore did not update'
+          );
+
+          assert.equal(
+            FelineStore.fur,
+            'sneeze',
+            'feline store did not fetch'
+          );
+
+          assert.equal(
+            CatStore.foo,
+            'baz',
+            'foo did not equal baz'
+          );
+        })
+        .subscribe(
+          () => {},
+          done,
+          done
+        );
+    });
+
     it('should error on fetch errors', (done) => {
-      RenderToString(cat, 'not the momma')
+      renderToString$(cat, 'not the momma')
         .subscribe(
           () => {},
           err => {
-            expect(err).to.exist;
-            err.should.be.an.instanceOf(Error);
+            assert(err instanceof Error, 'err is not instance of Error');
             done();
           }
         );
     });
 
     it('should complete', (done) => {
-      RenderToString(cat, element)
+      renderToString$(cat, element)
         .subscribe(
           () => {},
           () => {},
@@ -164,7 +273,7 @@ describe('render', function() {
 
   it('should return an observable', () => {
     let divContainer = document.createElement('div');
-    let renderObserable = Render(cat, element, divContainer);
+    let renderObserable = render$(cat, element, divContainer);
     expect(renderObserable).to.exist;
     renderObserable.subscribe.should.be.a('function');
   });
@@ -180,7 +289,7 @@ describe('render', function() {
     });
 
     it('should return react instance', (done) => {
-      let renderObserable = Render(cat, element, divContainer);
+      let renderObserable = render$(cat, element, divContainer);
       expect(renderObserable).to.exist;
       renderObserable
         .first()
@@ -192,7 +301,7 @@ describe('render', function() {
     });
 
     it('should return error', (done) => {
-      let renderObserable = Render(cat, 'foo', divContainer);
+      let renderObserable = render$(cat, 'foo', divContainer);
       expect(renderObserable).to.exist;
       renderObserable
         .subscribeOnError(err => {

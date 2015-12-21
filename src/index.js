@@ -1,2 +1,2 @@
-export { Render, RenderToString } from './Render';
+export { render$, renderToString$ } from './Render';
 export { contain, createContainer } from './createContainer';
