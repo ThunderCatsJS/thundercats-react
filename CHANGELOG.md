@@ -1,3 +1,15 @@
+# December 20, 2015 v0.5.0
+
+This release is a breaking change. It depends on internal API changes introduced
+in ThunderCats 3.1.0. The major change is now the fetching action
+will detect when an action returns an observable and report when that action
+has completed. This changes the previous behavior which would wait for a store
+reported by the user to emit a value, inferring that the action has completed.
+Consider when an async action that emits multiple actions before completing,
+this would break the fetching action.
+
+* [5e8e3c4](../../commit/5e8e3c4) [update] fetching uses fetch duration
+
 # November 3, 2015 v0.4.0
 
 This release has breaking changes:
