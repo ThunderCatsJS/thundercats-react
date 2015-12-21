@@ -171,22 +171,18 @@ export function createContainer(options = {}, Component) {
             getName(this),
             options.fetchAction
           );
-
-          invariant(
-            typeof options.store === 'string' ||
-            typeof options.fetchWaitFor === 'string',
-            '%s requires a store to wait for after fetch but was given %s',
-            getName(this),
-            options.store || options.fetchWaitFor
-          );
         }
 
-        const fetchActionsName = options.fetchAction.split('.')[0];
-        const fetchMethodName = options.fetchAction.split('.')[1];
+        const [fetchActionsName, fetchMethodName] =
+          options.fetchAction.split('.');
+
         const fetchActionsInst = cat.getActions(fetchActionsName);
-        const fetchStore = cat.getStore(
-          options.store || options.fetchWaitFor
-        );
+        let fetchStore;
+
+        /* istanbul ignore else */
+        if (options.store) {
+          fetchStore = cat.getStore(options.store);
+        }
 
         /* istanbul ignore else */
         if (__DEV__) {
@@ -196,14 +192,6 @@ export function createContainer(options = {}, Component) {
             getName(this),
             options.fetchAction,
             fetchActionsInst
-          );
-
-          invariant(
-            isObservable(fetchStore),
-            '%s should get an observable but got %s for %s',
-            getName(this),
-            fetchStore,
-            options.fetchWaitFor
           );
         }
 
@@ -223,12 +211,15 @@ export function createContainer(options = {}, Component) {
             getChildContext(Component.contextTypes, this.context)
           );
 
-          cat.fetchMap.set(options.fetchAction, {
-            name: options.fetchAction,
-            payload: payload,
-            store: fetchStore,
-            action: action
-          });
+          cat.fetchMap.set(
+            options.fetchAction,
+            {
+              name: options.fetchAction,
+              store: fetchStore,
+              payload,
+              action
+            }
+          );
         } else {
           options.action = action;
         }

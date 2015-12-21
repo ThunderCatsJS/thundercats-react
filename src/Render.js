@@ -1,43 +1,33 @@
-import Rx from 'rx';
+import Rx, { Observable } from 'rx';
 import { render } from 'react-dom';
 import { renderToString, renderToStaticMarkup } from 'react-dom/server';
 import debugFactory from 'debug';
 
 import ContextWrapper from './ContextWrapper';
-import waitFor from 'thundercats/lib/waitFor';
-import { getName, getNameOrNull } from './utils';
 
 const debug = debugFactory('thundercats:render');
-const assign = Object.assign;
 
-export function fetch(fetchMap) {
+export function fetch$(fetchMap) {
   if (!fetchMap || fetchMap.size === 0) {
     debug('cat found empty fetch map');
-    return Rx.Observable.return({
-      data: {},
-      fetchMap
-    });
+    return Rx.Observable.just(fetchMap);
   }
 
-  const fetchCtx = Rx.Observable.from(fetchMap.values()).shareReplay();
-
-  const waitForStores = fetchCtx
-    .pluck('store')
-    // store should have names
-    .filter(store => !!getNameOrNull(store))
+  const fetchCtx$ = Rx.Observable.from(fetchMap.values()).shareReplay();
+  const stores$ = fetchCtx$
+    .map(({ store }) => store)
+    .filter(store => !!store)
     .toArray()
-    .tap(arrayOfStores => debug('waiting for %s stores', arrayOfStores.length))
-    .flatMap(arrayOfStores => {
-      return waitFor(...arrayOfStores).first();
-    });
+    .flatMap(stores => Rx.Observable.combineLatest(stores));
 
-  const storeNames = fetchCtx
-    .pluck('store')
-    .map(store => getName(store));
+  const actionDurations$ = fetchCtx$
+    .map(({ action }) => action.__duration())
+    .toArray()
+    .flatMap(actionDurations => Rx.Observable.combineLatest(actionDurations))
+    .tapOnCompleted(() => debug('fetch actions have all completed'));
 
-  const fetchObs = fetchCtx
-    .map(({ action, payload }) => ({ action, payload }))
-    .tapOnNext(() => debug('init individual fetchers'))
+
+  const fetch$ = fetchCtx$
     .tapOnNext(({ action, payload }) => {
       action(payload);
     })
@@ -45,72 +35,57 @@ export function fetch(fetchMap) {
     .toArray();
 
   return Rx.Observable.combineLatest(
-    waitForStores,
-    fetchObs.delaySubscription(50),
-    data => data
-  )
-    .flatMap(data => Rx.Observable.from(data))
-    .zip(
-      storeNames,
-      (data, name) => ({ [name]: data })
+      stores$,
+      actionDurations$,
+      fetch$.delaySubscription(50)
     )
-    .reduce((accu, item) => {
-      return assign({}, accu, item);
-    }, {})
-    .map(data => ({ data, fetchMap }));
+    .first()
+    .tapOnNext(() => debug('fetch completed'))
+    .map(() => fetchMap);
 }
 
-export function RenderToObs(Comp, DOMContainer) {
+export function renderToObs$(Comp, DOMContainer) {
   return new Rx.AnonymousObservable(observer => {
-    let instance = null;
-    instance = render(Comp, DOMContainer, (err) => {
-      /* istanbul ignore else */
-      if (err) { return observer.onError(err); }
-      /* istanbul ignore else */
-      if (instance) { observer.onNext(instance); }
-    });
-    observer.onNext(instance);
+    try {
+      render(Comp, DOMContainer, function() {
+        observer.onNext(this);
+      });
+    } catch (e) {
+      observer.onError(e);
+      observer.onCompleted();
+    }
   });
 }
 
-export function Render(cat, Component, DOMContainer) {
-  return Rx.Observable.just(Component)
-    .map(Comp => ContextWrapper.wrap(Comp, cat))
-    .flatMap(
-      Burrito => RenderToObs(Burrito, DOMContainer),
-      (Burrito, inst) => {
-        return inst;
-      }
-    );
+export function render$(cat, Component, DOMContainer) {
+  let Burrito;
+  try {
+    Burrito = ContextWrapper.wrap(Component, cat);
+  } catch (e) {
+    return Observable.throw(e);
+  }
+  return renderToObs$(Burrito, DOMContainer);
 }
 
-export function RenderToString(cat, Component) {
-  const fetchMap = new Map();
-  cat.fetchMap = fetchMap;
-  return Rx.Observable.just(Component)
-    .map(Comp => ContextWrapper.wrap(Comp, cat))
-    .doOnNext(Burrito => {
-      debug('initiation fetcher registration');
-      renderToStaticMarkup(Burrito);
-      debug('fetcher registration complete');
-    })
-    .flatMap(
-      () => {
-        return fetch(fetchMap);
-      },
-      (Burrito, { data, fetchMap }) => {
-        return {
-          Burrito,
-          data,
-          fetchMap
-        };
-      }
-    )
-    .map(({ Burrito, data, fetchMap }) => {
-      let markup = renderToString(Burrito);
+export function renderToString$(cat, Component) {
+  let fetchMap;
+  let Burrito;
+  try {
+    fetchMap = new Map();
+    cat.fetchMap = fetchMap;
+    Burrito = ContextWrapper.wrap(Component, cat);
+    debug('initiation fetcher registration');
+    renderToStaticMarkup(Burrito);
+    debug('fetcher registration complete');
+  } catch (e) {
+    return Observable.throw(e);
+  }
+
+  return fetch$(fetchMap)
+    .map((fetchMap) => {
+      const markup = renderToString(Burrito);
       return {
         markup,
-        data,
         fetchMap
       };
     })

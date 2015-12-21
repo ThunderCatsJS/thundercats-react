@@ -8,9 +8,8 @@ import sinon from 'sinon';
 import sinonChai from 'sinon-chai';
 
 import utils from './utils';
-import { getNameOrNull } from '../src/utils';
 import ContextWrapper from '../src/ContextWrapper';
-import { createContainer } from '../src';
+import { contain, createContainer } from '../src';
 
 const assign = Object.assign;
 const {
@@ -28,6 +27,20 @@ chai.use(sinonChai);
 
 describe('Container', function() {
   describe('initialization', ()=> {
+    it('should be ok with no options', () => {
+      expect(() => {
+        let CatActions = createActions();
+        let cat = createCat();
+        cat.register(CatActions);
+        let Comp = contain()(createClass());
+        let Burrito = ContextWrapper.wrap(
+          React.createElement(Comp),
+          cat
+        );
+        render(Burrito);
+      }).to.not.throw();
+    });
+
     it('should be ok with empty options', () => {
       expect(() => {
         let CatActions = createActions();
@@ -50,7 +63,7 @@ describe('Container', function() {
     describe('decorator', function() {
       let createContainerDecorator;
       beforeEach(() => {
-        createContainerDecorator = createContainer({});
+        createContainerDecorator = contain({});
       });
 
       it('should throw when given non function', () => {
@@ -150,7 +163,7 @@ describe('Container', function() {
     it('should assign mapped store value when map is provided', () => {
       let ba = { da: 'boom' };
       let Comp = createClass();
-      let WrappedComp = createContainer({
+      let WrappedComp = contain({
         store: 'catStore',
         map: () => {
           return ba;
@@ -322,6 +335,27 @@ describe('Container', function() {
       if (divContainer) {
         unmountComp(divContainer);
       }
+    });
+
+    it('should be ok if not provided', () => {
+      expect(() => {
+        let Comp = createContainer({
+          store: 'catStore',
+          fetchAction: 'catActions.doAction'
+        }, createClass({
+          contextTypes: {
+            foo: React.PropTypes.string
+          },
+          propTypes: {
+            mew: React.PropTypes.string
+          }
+        }));
+        let Burrito = ContextWrapper.wrap(
+          React.createElement(Comp, { mew: 'purr' }),
+          cat
+        );
+        divContainer = render(Burrito).container;
+      }).to.not.throw();
     });
 
     it('should be called with props and context', () => {
@@ -550,25 +584,6 @@ describe('Container', function() {
       expect(fetchCtx).to.not.be.undefined;
       fetchCtx.name.should.equal(fetchAction);
       fetchCtx.payload.should.deep.equal(fetchPayload);
-    });
-
-    it('should register with fetchWaitFor with multiple stores', () => {
-      Comp = createContainer({
-        stores: [ 'CatStore' ],
-        combineLatest: value => value,
-        fetchWaitFor: 'CatStore',
-        fetchAction: fetchAction,
-        getPayload: () => fetchPayload
-      }, createClass());
-      const Burrito = ContextWrapper.wrap(
-        React.createElement(Comp),
-        cat
-      );
-      const { container } = render(Burrito);
-      cont = container;
-      const fetchCtx = cat.fetchMap.get(fetchAction);
-      expect(fetchCtx).to.not.be.undefined;
-      getNameOrNull(fetchCtx.store).should.deep.equal('CatStore');
     });
   });
 });
