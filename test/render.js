@@ -230,6 +230,78 @@ describe('renderToString$', function() {
         );
     });
 
+    it('should prevent infinite loops', done => {
+      const element = React.createElement(createContainer(
+        {
+          actions: ['catActions'],
+          store: 'catStore',
+          fetchAction: 'catActions.doAction',
+          getPayload: () => ({})
+        },
+        createClass({
+          displayName: 'Test',
+          propTypes: {
+            catActions: React.PropTypes.object
+          },
+          componentWillMount() {
+            this.props.catActions.doThis();
+          },
+
+          render() {
+            return React.createElement('h1', null, 'hello world');
+          }
+        })
+      ));
+
+      const CatActions = Actions({
+        refs: { displayName: 'catActions' },
+        doAction() {
+          return Observable.just({ set: { foo: 'baz' } }).delay(500);
+        },
+        doThis() {
+          return { set: { qux: 'quo' } };
+        }
+      });
+
+      const CatStore = Store({
+        refs: {
+          value: { foo: 'bar' },
+          displayName: 'CatStore'
+        },
+        init({ instance: store, args: [cat] }) {
+          const actions = cat.getActions('catActions');
+          store.register(actions.doAction);
+          store.register(actions.doThis);
+        }
+      });
+
+
+      const cat = Cat()();
+
+      cat.register(CatActions);
+      cat.register(CatStore, null, cat);
+
+      renderToString$(cat, element)
+        .flatMap(
+          dehydrate(cat),
+        )
+        .doOnNext(({ CatStore })=> {
+          assert.equal(
+            CatStore.foo,
+            'baz',
+            'foo did not equal baz'
+          );
+
+          assert.isNotOk(CatStore.qux);
+        })
+        .subscribe(
+          () => {},
+          done,
+          done
+        );
+
+    });
+
     it('should error on fetch errors', (done) => {
       renderToString$(cat, 'not the momma')
         .subscribe(
