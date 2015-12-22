@@ -1,3 +1,20 @@
+# December 22, 2015 v0.5.1
+
+This release fixes the following situation.
+
+If an action were to take place during a `componentWillMount`, this
+will cause an infinite loop as the action triggers `combineLatest`
+to emit an event, which then triggers another `renderToString`
+which starts the whole thing over again.
+
+There is a `first` filter in the stream, but internally the `onNext` of
+the observer is called before the `onCompleted` of the observer can be
+called, meaning the `first` filter never has a chance to call `onCompleted`
+
+Moral of the story? Beware of Zalgo!
+
+* [08411fe](../../commit/08411fe) [fix] Prevent infinite loops
+
 # December 20, 2015 v0.5.0
 
 This release is a breaking change. It depends on internal API changes introduced
