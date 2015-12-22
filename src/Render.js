@@ -82,6 +82,9 @@ export function renderToString$(cat, Component) {
   }
 
   return fetch$(fetchMap)
+    // move fetch to next event loop to prevent
+    // synchronous actions from causing infiniti loop
+    .delay(50)
     .map((fetchMap) => {
       const markup = renderToString(Burrito);
       return {
@@ -89,7 +92,6 @@ export function renderToString$(cat, Component) {
         fetchMap
       };
     })
-    .first()
     .tapOnNext(() => cat.fetchMap = null);
 }
 
