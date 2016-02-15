@@ -57,7 +57,7 @@
     "babel-eslint": "4.1.6",
     "babel-runtime": "5.8.29",
     "chai": "^3.4.0",
-    "eslint": "^1.8.0",
+    "eslint": "^2.1.0",
     "eslint-plugin-react": "^3.6.3",
     "istanbul": "^0.4.0",
     "istanbul-coveralls": "^1.0.2",
